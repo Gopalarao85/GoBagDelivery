@@ -12,12 +12,27 @@ public class WebhookController {
 
     private final String PHONE_NUMBER_ID = "553308501205548";
     private final String ACCESS_TOKEN = "EAAHgejM8slMBO2oKKOEpp4sUdjcpYnORtr7hiQbiC3m8dby5nPdbnlv2t1rGUjZBBL1jCZBk1juCAwXSoCbkFHy6t2nD0XwmJZBoEw56oE7ENpBjp5yl9ZB5ylUHdoggwVF15ZAZAD5porrsfOQazprwtAMqZBunPhVhQM6zguHASTDoolq1XihZBBoM3TE17p5h9gZDZD"; // Replace with a valid access token
+    private final String VERIFY_TOKEN = "gobag123"; // Your custom token
 
+    // ✅ Webhook Verification Endpoint
+    @GetMapping
+    public ResponseEntity<String> verifyWebhook(
+            @RequestParam("hub.mode") String mode,
+            @RequestParam("hub.verify_token") String token,
+            @RequestParam("hub.challenge") String challenge) {
+        
+        if ("subscribe".equals(mode) && VERIFY_TOKEN.equals(token)) {
+            return ResponseEntity.ok(challenge); // Respond with challenge
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid Token");
+        }
+    }
 
+    // ✅ Handle Incoming WhatsApp Messages
     @PostMapping
     public ResponseEntity<String> handleWebhook(@RequestBody Map<String, Object> payload) {
-    	System.out.println("Received Payload: " + payload);
-    	List<Map<String, Object>> messages = (List<Map<String, Object>>) payload.get("messages");
+        System.out.println("Received Payload: " + payload);
+        List<Map<String, Object>> messages = (List<Map<String, Object>>) payload.get("messages");
 
         if (messages != null && !messages.isEmpty()) {
             Map<String, Object> message = messages.get(0);
@@ -34,6 +49,7 @@ public class WebhookController {
         return ResponseEntity.ok("EVENT_RECEIVED");
     }
 
+    // ✅ Send Restaurant List to User
     private void sendRestaurantList(String to) {
         String url = "https://graph.facebook.com/v17.0/" + PHONE_NUMBER_ID + "/messages";
         
@@ -81,6 +97,7 @@ public class WebhookController {
         System.out.println("WhatsApp API Response: " + response.getBody());
     }
 
+    // ✅ Send Text Message
     private void sendTextMessage(String to, String message) {
         String url = "https://graph.facebook.com/v17.0/" + PHONE_NUMBER_ID + "/messages";
         
@@ -105,6 +122,7 @@ public class WebhookController {
         System.out.println("WhatsApp API Response: " + response.getBody());
     }
 
+    // ✅ Create a List Row for WhatsApp Interactive List
     private Map<String, Object> createRow(String id, String title, String description) {
         Map<String, Object> row = new HashMap<>();
         row.put("id", id);
