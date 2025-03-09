@@ -13,7 +13,7 @@ public class SecurityConfig {
         http
             .csrf().disable()
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/chatbot/**").permitAll() // Allow chatbot API without authentication
+                .requestMatchers("/api/chat/**", "/webhook/**").permitAll() // Allow chatbot & webhook
                 .anyRequest().authenticated()
             );
 
